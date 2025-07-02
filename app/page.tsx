@@ -2,16 +2,16 @@
 
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
+import { Text, Tasks, TaskItem } from "../types";
 
-const page = () => {
-  const [task, setTask] = useState("");
-  const [tasks, setTasks] = useState<
-    { id: string; text: string; done: boolean }[]
-  >([]);
+const Page = () => {
+  const [text, setText] = useState<Text>("");
+  const [tasks, setTasks] = useState<Tasks>([]);
 
   const handleAdd = () => {
-    setTasks([...tasks, { id: uuidv4(), text: task, done: false }]);
-    setTask("");
+    if (!text.trim()) return;
+    setTasks([...tasks, { id: uuidv4(), text: text, done: false }]);
+    setText("");
   };
 
   const handleDelete = (id: string) => {
@@ -26,34 +26,50 @@ const page = () => {
     setTasks(updatedTasks);
   };
 
+  const TaskItem = (props: TaskItem) => {
+    const { task, onComplete, onDelete } = props;
+    const classNameForComplete = `cursor-pointer ${
+      task.done ? "line-through" : ""
+    }`;
+
+    return (
+      <li>
+        <div
+          className={classNameForComplete}
+          onClick={() => onComplete(task.id)}
+        >
+          {task.text}
+        </div>
+        <button onClick={() => onDelete(task.id)}>Delete</button>
+      </li>
+    );
+  };
+
   return (
     <div>
       <h1>ToDo App</h1>
       <div>
         <input
           type="text"
-          value={task}
+          value={text}
           placeholder="Enter a task"
-          onChange={(e) => setTask(e.target.value)}
+          onChange={(e) => setText(e.target.value)}
         />
         <button onClick={handleAdd}>Add</button>
       </div>
 
       <ul>
-        {tasks.map((item, _) => (
-          <li key={item.id}>
-            <div
-              className={`cursor-pointer ${item.done ? "line-through" : ""}`}
-              onClick={() => handleComplete(item.id)}
-            >
-              {item.text}
-            </div>
-            <button onClick={() => handleDelete(item.id)}>Delete</button>
-          </li>
+        {tasks.map((task) => (
+          <TaskItem
+            key={task.id}
+            task={task}
+            onComplete={handleComplete}
+            onDelete={handleDelete}
+          />
         ))}
       </ul>
     </div>
   );
 };
 
-export default page;
+export default Page;
