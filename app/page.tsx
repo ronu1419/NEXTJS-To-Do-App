@@ -9,6 +9,7 @@ const Page = () => {
   const [tasks, setTasks] = useState<Tasks>([]);
 
   const handleAdd = () => {
+    if (!text.trim()) return;
     setTasks([...tasks, { id: uuidv4(), text: text, done: false }]);
     setText("");
   };
